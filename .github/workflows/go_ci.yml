@@ -117,22 +117,29 @@ jobs:
           chmod +x my-go-app-macos-amd64
           chmod +x my-go-app-macos-arm64
 
-          # 2. Verschiebe alle Executables in den Ordner
-          mv my-go-app-linux $FOLDER_NAME/
-          mv my-go-app-macos-amd64 $FOLDER_NAME/
-          mv my-go-app-macos-arm64 $FOLDER_NAME/
+          # 1. ZIP für Linux erstellen 
+          mkdir ${APP_NAME}-linux
+          mv ${APP_NAME}-linux ${APP_NAME}-linux/
+          zip -r -q ${APP_NAME}-linux-${TAG_NAME}.zip ${APP_NAME}-linux
           
-          # 3. Zippe den Ordner rekursiv (behält Berechtigungen)
-          # 'zip -r' packt das Verzeichnis inkl. der Berechtigungen
-          zip -r -q $ZIP_NAME $FOLDER_NAME      
-
+          # 2. ZIP für macOS Intel erstellen
+          mkdir ${APP_NAME}-macos-amd64
+          mv ${APP_NAME}-macos-amd64 ${APP_NAME}-macos-amd64/
+          zip -r -q ${APP_NAME}-macos-amd64-${TAG_NAME}.zip ${APP_NAME}-macos-amd64
+          
+          # 3. ZIP für macOS Apple Silicon erstellen
+          mkdir ${APP_NAME}-macos-arm64
+          mv ${APP_NAME}-macos-arm64 ${APP_NAME}-macos-arm64/
+          zip -r -q ${APP_NAME}-macos-arm64-${TAG_NAME}.zip ${APP_NAME}-macos-arm64         
       # Schritt 4: GitHub Release erstellen und NUR das ZIP-File anhängen
       - name: GitHub Release erstellen
         uses: softprops/action-gh-release@v2
         with:
-          # Anhängen der gerade erstellten ZIP-Datei
+          # Anhängen der gerade erstellten ZIP-Dateien
           files: |
-            my-go-app-${{ github.ref_name }}.zip
+            my-go-app-linux-${{ github.ref_name }}.zip
+            my-go-app-macos-amd64-${{ github.ref_name }}.zip  
+            my-go-app-macos-arm64-${{ github.ref_name }}.zip  
           name: Release ${{ github.ref_name }}
           draft: true
         env:
