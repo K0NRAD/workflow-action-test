@@ -39,4 +39,4 @@ jobs:
           # Vergeben Sie einen eindeutigen Namen (z.B. der Name Ihrer Go-Anwendung)
           name: go-programm-linux
           # Geben Sie den Pfad zur kompilierten Datei an (Go baut standardmäßig in das aktuelle Verzeichnis)
-          path: superapp        
+          path: workflow-action-test        
