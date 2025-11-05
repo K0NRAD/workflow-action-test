@@ -48,6 +48,8 @@ jobs:
     needs: build
     # Führt diesen Job NUR aus, wenn der Trigger ein Tag-Push war
     if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write # Erlaubt das Schreiben von Releases und Assets
     runs-on: ubuntu-latest
     
     steps:
