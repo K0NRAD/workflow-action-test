@@ -102,18 +102,25 @@ jobs:
         with:
           name: my-go-app-macos-binaries
 
-      # Schritt 3: Dateien in ein ZIP-Archiv packen
-      - name: Executables zippen
+      # Schritt 3: Bereinigen, Strukturieren und Zippen
+      - name: Strukturieren und Zippen
         run: |
-          # Ermittelt den Tag-Namen (z.B. v1.0.0) für den ZIP-Dateinamen
           TAG_NAME=${{ github.ref_name }}
-          ZIP_NAME="my-go-app-${TAG_NAME}.zip"
+          FOLDER_NAME="my-go-app-${TAG_NAME}"
+          ZIP_NAME="${FOLDER_NAME}.zip"
           
-          # Erstellt das ZIP-Archiv mit allen Executables
-          # -j: keine Verzeichnisse speichern
-          # -q: leiser Modus
-          zip -j -q $ZIP_NAME my-go-app-linux my-go-app-macos-amd64 my-go-app-macos-arm64          
-      
+          # 1. Erstelle einen benannten Ordner
+          mkdir $FOLDER_NAME
+          
+          # 2. Verschiebe alle Executables in den Ordner
+          mv my-go-app-linux $FOLDER_NAME/
+          mv my-go-app-macos-amd64 $FOLDER_NAME/
+          mv my-go-app-macos-arm64 $FOLDER_NAME/
+          
+          # 3. Zippe den Ordner rekursiv (behält Berechtigungen)
+          # 'zip -r' packt das Verzeichnis inkl. der Berechtigungen
+          zip -r -q $ZIP_NAME $FOLDER_NAME      
+
       # Schritt 4: GitHub Release erstellen und NUR das ZIP-File anhängen
       - name: GitHub Release erstellen
         uses: softprops/action-gh-release@v2
