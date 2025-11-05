@@ -112,6 +112,11 @@ jobs:
           # 1. Erstelle einen benannten Ordner
           mkdir $FOLDER_NAME
           
+          # WICHTIG: Setze explizit das Ausführbarkeits-Flag (+x)
+          chmod +x my-go-app-linux
+          chmod +x my-go-app-macos-amd64
+          chmod +x my-go-app-macos-arm64
+
           # 2. Verschiebe alle Executables in den Ordner
           mv my-go-app-linux $FOLDER_NAME/
           mv my-go-app-macos-amd64 $FOLDER_NAME/
