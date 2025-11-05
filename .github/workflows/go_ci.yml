@@ -31,4 +31,12 @@ jobs:
       # Schritt 4: Die Tests ausführen
       - name: Go Tests ausführen
         run: go test -v ./...
-        
+
+    # Schritt 5: Die kompilierte ausführbare Datei als Artefakt hochladen
+      - name: Ausführbare Datei hochladen
+        uses: actions/upload-artifact@v4
+        with:
+          # Vergeben Sie einen eindeutigen Namen (z.B. der Name Ihrer Go-Anwendung)
+          name: go-programm-linux
+          # Geben Sie den Pfad zur kompilierten Datei an (Go baut standardmäßig in das aktuelle Verzeichnis)
+          path: superapp        
