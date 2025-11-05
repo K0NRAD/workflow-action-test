@@ -60,7 +60,8 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.21'
-          
+          cache: false # Behebt das Problem mit fehlender go.sum
+
       - name: Baue für macOS (Intel / amd64)
         run: env GOOS=darwin GOARCH=amd64 go build -o my-go-app-macos-amd64 .
 
@@ -115,4 +116,3 @@ jobs:
         env:
           # Das automatisch bereitgestellte Token für die API-Interaktion
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
