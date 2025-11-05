@@ -29,6 +29,12 @@ jobs:
       - name: Go Module Initialisierung
         run: go mod tidy
 
+      # 3. Installation der C-Abhängigkeit (PortAudio)
+      - name: Install PortAudio Development Libraries
+        run: |
+          sudo apt update
+          sudo apt install -y portaudio19-dev libportaudio2
+      
       # Kompiliert das Go-Programm für Linux
       - name: Go Programm bauen (Linux)
         run: go build -v -o my-go-app-linux . 
