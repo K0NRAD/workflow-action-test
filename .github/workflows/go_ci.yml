@@ -1,42 +1,73 @@
-name: Go CI Build und Test
+name: Go CI und Release
 
+# Auslöser: Startet bei Push auf main ODER bei jedem neuen Git-Tag (z.B. v1.0.0)
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    tags: 
+      - 'v*' # Löst auch bei Tags wie v1.0.0 aus
 
 jobs:
+  ##########################################
+  # JOB 1: BUILD UND TEST
+  ##########################################
   build:
-    # Definiert das Betriebssystem, auf dem der Job laufen soll
     runs-on: ubuntu-latest
-
     steps:
-      # Schritt 1: Code aus dem Repository klonen
       - name: Code auschecken
         uses: actions/checkout@v4
 
-      # Schritt 2: Go-Umgebung einrichten
-      # Definiert, welche Go-Version verwendet werden soll
       - name: Go Umgebung einrichten
         uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
-          cache: false
+          go-version: '1.21'
+          cache: false # Behebt das Problem mit fehlender go.sum
           
-      # Schritt 3: Das Programm bauen (Kompilieren)
+      - name: Go Module Initialisierung
+        run: go mod tidy
+
+      # Kompiliert das Go-Programm und benennt die Executable
       - name: Go Programm bauen
-        run: go build -v ./...
+        run: go build -v -o my-go-app . 
         
-      # Schritt 4: Die Tests ausführen
       - name: Go Tests ausführen
         run: go test -v ./...
 
-    # Schritt 5: Die kompilierte ausführbare Datei als Artefakt hochladen
-      - name: Ausführbare Datei hochladen
+      # Lädt die kompilierte Datei als Artefakt hoch, damit der Release-Job sie verwenden kann
+      - name: Ausführbare Datei als Artefakt hochladen
         uses: actions/upload-artifact@v4
         with:
-          # Vergeben Sie einen eindeutigen Namen (z.B. der Name Ihrer Go-Anwendung)
-          name: go-programm-linux
-          # Geben Sie den Pfad zur kompilierten Datei an (Go baut standardmäßig in das aktuelle Verzeichnis)
-          path: workflow-action-test        
+          name: my-go-app-binary # Wichtig: Eindeutiger Name
+          path: my-go-app 
+
+  ##########################################
+  # JOB 2: RELEASE ERSTELLEN
+  ##########################################
+  release:
+    # Wartet, bis der Build-Job erfolgreich abgeschlossen ist
+    needs: build
+    # Führt diesen Job NUR aus, wenn der Trigger ein Tag-Push war
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Schritt 1: Artefakt herunterladen
+      - name: Artefakt herunterladen (Executable)
+        uses: actions/download-artifact@v4
+        with:
+          # Muss mit dem Namen im Upload-Job übereinstimmen
+          name: my-go-app-binary 
+
+      # Schritt 2: GitHub Release erstellen und Datei anhängen
+      - name: GitHub Release erstellen
+        uses: softprops/action-gh-release@v2
+        with:
+          # Fügt alle Dateien im aktuellen Verzeichnis als Assets an das Release an
+          files: my-go-app 
+          # Generiert den Titel des Releases aus dem Tag-Namen
+          name: Release ${{ github.ref_name }}
+          # Markiert das Release als Entwurf
+          draft: true
+        env:
+          # GITHUB_TOKEN wird benötigt, um über die API ein Release zu erstellen
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
