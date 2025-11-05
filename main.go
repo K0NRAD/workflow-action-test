@@ -7,6 +7,9 @@ func main() {
 }
 
 // Eine einfache Funktion zum Testen
-func Begruessung(name string) string {
+func Greeting(name string) string {
+    if name == "" {
+        return "Hallo!"
+    }
     return fmt.Sprintf("Hallo, %s!", name)
 }
